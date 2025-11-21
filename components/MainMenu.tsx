@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins } from 'lucide-react';
+import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem } from 'lucide-react';
 import { auth, googleProvider, db } from '../firebaseConfig';
 import { signInWithPopup, signOut, User, updateProfile } from 'firebase/auth';
 import { ref, onValue } from 'firebase/database';
@@ -10,6 +10,7 @@ interface MainMenuProps {
   onShowLeaderboard: () => void;
   onOpenChat: () => void;
   onOpenCrash: () => void;
+  onOpenWheel: () => void;
   onOpenShop: () => void;
   user: User | null;
 }
@@ -19,13 +20,15 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onShowLeaderboard, 
   onOpenChat,
   onOpenCrash,
+  onOpenWheel,
   onOpenShop,
   user 
 }) => {
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [isProfileSetup, setIsProfileSetup] = useState(false);
-  const [balance, setBalance] = useState<number>(0);
+  const [coins, setCoins] = useState<number>(0);
+  const [diamonds, setDiamonds] = useState<number>(0);
 
   // User kirganda avtomatik tekshirish
   useEffect(() => {
@@ -39,10 +42,12 @@ const MainMenu: React.FC<MainMenuProps> = ({
         setIsProfileSetup(false);
       }
 
-      // Balansni yuklash
-      const balanceRef = ref(db, `users/${user.uid}/coins`);
-      const unsubscribe = onValue(balanceRef, (snapshot) => {
-        setBalance(snapshot.val() || 0);
+      // Balanslarni yuklash
+      const userRef = ref(db, `users/${user.uid}`);
+      const unsubscribe = onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        setCoins(data?.coins || 0);
+        setDiamonds(data?.diamonds || 0);
       });
 
       return () => unsubscribe();
@@ -151,14 +156,20 @@ const MainMenu: React.FC<MainMenuProps> = ({
         {/* 3-BOSQICH: ASOSIY MENU */}
         {user && isProfileSetup && (
           <div className="space-y-3 animate-pop">
-            <div className="flex flex-col items-center justify-center gap-1 mb-6">
+            <div className="flex flex-col items-center justify-center gap-2 mb-6">
                <div className="text-neonBlue text-xl font-mono flex items-center gap-2">
                   Salom, <span className="font-bold">{nickname}</span>
                   <button onClick={handleChangeName} className="text-gray-500 hover:text-white"><Edit2 className="w-4 h-4" /></button>
                </div>
-               <div className="bg-gray-800 px-4 py-2 rounded-full border border-yellow-500/50 flex items-center gap-2 shadow-lg">
-                  <Coins className="w-5 h-5 text-yellow-400" />
-                  <span className="text-yellow-400 font-bold text-lg">{balance} Tanga</span>
+               <div className="flex gap-3">
+                  <div className="bg-gray-800 px-4 py-2 rounded-full border border-yellow-500/50 flex items-center gap-2 shadow-lg">
+                      <Coins className="w-5 h-5 text-yellow-400" />
+                      <span className="text-yellow-400 font-bold text-lg">{coins}</span>
+                  </div>
+                  <div className="bg-gray-800 px-4 py-2 rounded-full border border-blue-400/50 flex items-center gap-2 shadow-lg">
+                      <Gem className="w-5 h-5 text-blue-400" />
+                      <span className="text-blue-400 font-bold text-lg">{diamonds}</span>
+                  </div>
                </div>
             </div>
 
@@ -179,12 +190,22 @@ const MainMenu: React.FC<MainMenuProps> = ({
               <Trophy className="w-5 h-5" /> REYTING
             </button>
 
-            <button
-              onClick={onOpenCrash}
-              className="w-full px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold text-xl rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg transform hover:scale-105"
-            >
-              <TrendingUp className="w-6 h-6" /> OMADNI SINANG (CRASH)
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={onOpenCrash}
+                className="col-span-1 px-4 py-4 bg-gradient-to-br from-red-900 to-red-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
+              >
+                <TrendingUp className="w-6 h-6 mb-1" /> 
+                CRASH (PRO)
+              </button>
+              <button
+                onClick={onOpenWheel}
+                className="col-span-1 px-4 py-4 bg-gradient-to-br from-purple-900 to-purple-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
+              >
+                <Disc className="w-6 h-6 mb-1" /> 
+                OMAD DOIRASI
+              </button>
+            </div>
 
             <div className="flex gap-3">
               <button

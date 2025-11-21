@@ -7,6 +7,7 @@ import GameOver from './components/GameOver';
 import Leaderboard from './components/Leaderboard';
 import Chat from './components/Chat';
 import CrashGame from './components/CrashGame';
+import WheelGame from './components/WheelGame';
 import Shop from './components/Shop';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -56,6 +57,7 @@ const App: React.FC = () => {
           onShowLeaderboard={() => setGameState(GameState.LEADERBOARD)}
           onOpenChat={() => setGameState(GameState.CHAT)}
           onOpenCrash={() => setGameState(GameState.CRASH)}
+          onOpenWheel={() => setGameState(GameState.WHEEL)}
           onOpenShop={() => setGameState(GameState.SHOP)}
           user={user}
         />
@@ -88,6 +90,10 @@ const App: React.FC = () => {
 
       {gameState === GameState.CRASH && (
         <CrashGame onBack={goHome} />
+      )}
+
+      {gameState === GameState.WHEEL && (
+        <WheelGame onBack={goHome} />
       )}
 
       {gameState === GameState.SHOP && (

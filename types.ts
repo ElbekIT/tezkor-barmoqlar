@@ -1,3 +1,4 @@
+
 export interface ScoreEntry {
   id?: string;
   name: string;
@@ -13,6 +14,7 @@ export enum GameState {
   LEADERBOARD = 'LEADERBOARD',
   CHAT = 'CHAT',
   CRASH = 'CRASH',
+  WHEEL = 'WHEEL',
   SHOP = 'SHOP'
 }
 
@@ -33,5 +35,7 @@ export interface ChatMessage {
 
 export interface UserProfile {
   coins: number;
+  diamonds: number;
   unlockedChannel: boolean;
+  telegramId?: string;
 }
