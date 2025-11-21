@@ -1,7 +1,6 @@
-
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
-import { getAnalytics } from "firebase/analytics";
+// import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // Siz taqdim etgan konfiguratsiya
@@ -24,7 +23,7 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Analytics
-export const analytics = getAnalytics(app);
+// export const analytics = getAnalytics(app);
 
 // Realtime Database
 export const db = getDatabase(app);
