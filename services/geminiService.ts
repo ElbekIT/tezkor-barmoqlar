@@ -1,11 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 
-// IMPORTANT: In a production environment, never expose API keys on the client side.
-// For this specific request to work immediately as a demo, we are using the process.env.API_KEY.
-// Ensure the Netlify environment variable is set.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Instructions mandate using process.env.API_KEY
+const apiKey = process.env.API_KEY;
+
+let ai: GoogleGenAI | null = null;
+
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey: apiKey });
+} else {
+  console.warn("API Key topilmadi! AI izohlari ishlamaydi.");
+}
 
 export const generateGameCommentary = async (score: number): Promise<string> => {
+  if (!ai) {
+    return score > 50 ? "Qoyilmaqom natija! (AI ulanmagan)" : "Yaxshi harakat! (AI ulanmagan)";
+  }
+
   try {
     const prompt = `
       Men "Tezkor Barmoqlar" (Fast Fingers) o'yinini o'ynadim va ${score} ball to'pladim.
