@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, LogOut, Check } from 'lucide-react';
+import { Trophy, Zap, LogOut, Check, Edit2 } from 'lucide-react';
 import { auth, googleProvider } from '../firebaseConfig';
-import { signInWithPopup, signOut, User } from 'firebase/auth';
+import { signInWithPopup, signOut, User, updateProfile } from 'firebase/auth';
 
 interface MainMenuProps {
   onStartGame: (playerName: string) => void;
@@ -16,16 +16,29 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
   // Agar user bo'lsa, lekin hali ism tasdiqlamagan bo'lsa, bu 'setup' bosqichi bo'ladi
   const [isProfileSetup, setIsProfileSetup] = useState(false);
 
-  // User kirganda avtomatik Google ismini olish
+  // User kirganda avtomatik tekshirish
   useEffect(() => {
-    if (user?.displayName) {
-      setNickname(user.displayName);
+    if (user) {
+      // 1. Ismni inputga qo'yamiz
+      setNickname(user.displayName || '');
+
+      // 2. Tekshiramiz: Bu user oldin ismni tasdiqlaganmi?
+      // Biz buni localStorage orqali yoki user.displayName borligiga qarab bilishimiz mumkin.
+      const isSetupDone = localStorage.getItem(`setup_done_${user.uid}`);
+      
+      if (isSetupDone === 'true' && user.displayName) {
+        setIsProfileSetup(true);
+      } else {
+        // Agar birinchi marta kirayotgan bo'lsa yoki localStorage tozalanib ketgan bo'lsa
+        setIsProfileSetup(false);
+      }
     }
   }, [user]);
 
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      // Login muvaffaqiyatli bo'lsa, qolganini useEffect hal qiladi
     } catch (err) {
       console.error(err);
       setError('Google orqali kirishda xatolik yuz berdi.');
@@ -36,9 +49,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
     await signOut(auth);
     setIsProfileSetup(false);
     setNickname('');
+    setError('');
   };
 
-  const handleNameSubmit = (e: React.FormEvent) => {
+  const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nickname.trim()) {
       setError('Iltimos, ismingizni kiriting!');
@@ -48,12 +62,31 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
       setError('Ism juda uzun (max 15 ta harf)');
       return;
     }
-    // Ism tasdiqlandi, endi menyuni ko'rsatamiz
-    setIsProfileSetup(true);
+
+    try {
+      if (auth.currentUser) {
+        // Ismni Firebase Auth profiliga saqlaymiz (Serverda)
+        await updateProfile(auth.currentUser, {
+          displayName: nickname
+        });
+        
+        // Brauzerga bu user setup qilganini yozib qo'yamiz
+        localStorage.setItem(`setup_done_${auth.currentUser.uid}`, 'true');
+        
+        setIsProfileSetup(true);
+      }
+    } catch (err) {
+      console.error("Ism saqlashda xatolik:", err);
+      setError("Ismni saqlashda xatolik bo'ldi, qayta urinib ko'ring.");
+    }
   };
 
   const handleStartClick = () => {
     onStartGame(nickname);
+  };
+
+  const handleChangeName = () => {
+    setIsProfileSetup(false);
   };
 
   return (
@@ -97,7 +130,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
           </button>
         )}
 
-        {/* 2-BOSQICH: ISM KIRITISH (Agar user bor, lekin tasdiqlanmagan bo'lsa) */}
+        {/* 2-BOSQICH: ISM KIRITISH (Agar user bor, lekin 'setup_done' emas bo'lsa) */}
         {user && !isProfileSetup && (
           <form onSubmit={handleNameSubmit} className="bg-gray-800/80 p-6 rounded-2xl border border-gray-700 backdrop-blur-sm animate-pop">
             <h3 className="text-xl text-white mb-4 font-bold">Reytingda ko'rinadigan ismingiz:</h3>
@@ -118,7 +151,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
               type="submit"
               className="w-full py-3 bg-neonPurple text-white font-bold rounded-xl hover:bg-purple-600 transition-colors flex items-center justify-center gap-2"
             >
-              <Check className="w-5 h-5" /> ISM KORITISHNI TASDIQLASH
+              <Check className="w-5 h-5" /> TASDIQLASH VA KIRISH
             </button>
             <button
                 type="button"
@@ -130,11 +163,18 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartGame, onShowLeaderboard, use
           </form>
         )}
 
-        {/* 3-BOSQICH: ASOSIY MENU (Hammasi tayyor bo'lganda) */}
+        {/* 3-BOSQICH: ASOSIY MENU (User bor va isSetupDone = true) */}
         {user && isProfileSetup && (
           <div className="space-y-4 animate-pop">
-            <div className="text-neonBlue text-xl mb-4 font-mono">
+            <div className="text-neonBlue text-xl mb-4 font-mono flex items-center justify-center gap-2">
                Salom, <span className="font-bold">{nickname}</span>!
+               <button 
+                 onClick={handleChangeName}
+                 className="p-1 text-gray-500 hover:text-white transition-colors"
+                 title="Ismni o'zgartirish"
+               >
+                 <Edit2 className="w-4 h-4" />
+               </button>
             </div>
 
             <button
