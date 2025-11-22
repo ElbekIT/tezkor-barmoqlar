@@ -356,30 +356,33 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
                     </div>
                 </section>
 
-                {/* 2. Design Type */}
+                {/* 2. Design Type - SCROLLABLE CONTAINER */}
                 <section className="space-y-2 animate-pop" style={{animationDelay: '0.2s'}}>
                     <label className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
                         <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">2</span>
                         Xizmat turi
                     </label>
-                    <div className="space-y-2">
-                        {currentDesignTypes.map(d => (
-                            <button 
-                                key={d.id} 
-                                onClick={() => setDesignType(d.id)}
-                                className={`w-full p-4 rounded-xl flex justify-between items-center border transition-all ${designType === d.id ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg' : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-750'}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg ${designType === d.id ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-500'}`}>
-                                        {d.icon}
+                    
+                    <div className="max-h-[240px] overflow-y-auto pr-1 border border-gray-800 rounded-2xl bg-gray-900/50 p-2">
+                        <div className="space-y-2">
+                            {currentDesignTypes.map(d => (
+                                <button 
+                                    key={d.id} 
+                                    onClick={() => setDesignType(d.id)}
+                                    className={`w-full p-3 rounded-xl flex justify-between items-center border transition-all ${designType === d.id ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg' : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-750'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg ${designType === d.id ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-500'}`}>
+                                            {d.icon}
+                                        </div>
+                                        <span className="font-bold text-sm text-left">{d.name}</span>
                                     </div>
-                                    <span className="font-bold text-sm">{d.name}</span>
-                                </div>
-                                <div className="bg-gray-900 px-3 py-1 rounded-lg border border-gray-700">
-                                    <span className="font-mono text-yellow-400 font-bold">{d.price} C</span>
-                                </div>
-                            </button>
-                        ))}
+                                    <div className="bg-gray-900 px-2 py-1 rounded-lg border border-gray-700 whitespace-nowrap">
+                                        <span className="font-mono text-yellow-400 font-bold text-xs">{d.price} C</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </section>
 
