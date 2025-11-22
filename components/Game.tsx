@@ -81,7 +81,7 @@ const Game: React.FC<GameProps> = ({ playerName, onGameOver, onCancel }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center select-none overflow-hidden"
+      className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center select-none overflow-hidden z-50"
       onClick={keepFocus}
     >
       {/* Hidden Input for Mobile Keyboard & Desktop Typing */}
@@ -174,4 +174,3 @@ const Game: React.FC<GameProps> = ({ playerName, onGameOver, onCancel }) => {
 };
 
 export default Game;
-    

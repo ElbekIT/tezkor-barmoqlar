@@ -15,7 +15,9 @@ export enum GameState {
   CHAT = 'CHAT',
   CRASH = 'CRASH',
   WHEEL = 'WHEEL',
-  SHOP = 'SHOP'
+  SHOP = 'SHOP',
+  BATTLE_LOBBY = 'BATTLE_LOBBY',
+  BATTLE_ARENA = 'BATTLE_ARENA'
 }
 
 export interface Target {
@@ -38,4 +40,14 @@ export interface UserProfile {
   diamonds: number;
   unlockedChannel: boolean;
   telegramId?: string;
+}
+
+export interface BattleSession {
+  id: string;
+  player1: { uid: string; name: string; ready: boolean; score: number };
+  player2: { uid: string; name: string; ready: boolean; score: number };
+  status: 'pending' | 'accepted' | 'betting' | 'countdown' | 'playing' | 'finished';
+  bet: { amount: number; currency: 'coins' | 'diamonds' };
+  startTime?: number;
+  winner?: string;
 }

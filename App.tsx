@@ -9,6 +9,8 @@ import Chat from './components/Chat';
 import CrashGame from './components/CrashGame';
 import WheelGame from './components/WheelGame';
 import Shop from './components/Shop';
+import BattleLobby from './components/BattleLobby';
+import BattleArena from './components/BattleArena';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
@@ -18,6 +20,7 @@ const App: React.FC = () => {
   const [lastScore, setLastScore] = useState<number>(0);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeBattleId, setActiveBattleId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -41,6 +44,11 @@ const App: React.FC = () => {
     setGameState(GameState.MENU);
   };
 
+  const startBattle = (battleId: string) => {
+      setActiveBattleId(battleId);
+      setGameState(GameState.BATTLE_ARENA);
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -59,6 +67,7 @@ const App: React.FC = () => {
           onOpenCrash={() => setGameState(GameState.CRASH)}
           onOpenWheel={() => setGameState(GameState.WHEEL)}
           onOpenShop={() => setGameState(GameState.SHOP)}
+          onOpenBattle={() => setGameState(GameState.BATTLE_LOBBY)}
           user={user}
         />
       )}
@@ -98,6 +107,21 @@ const App: React.FC = () => {
 
       {gameState === GameState.SHOP && (
         <Shop onBack={goHome} />
+      )}
+
+      {gameState === GameState.BATTLE_LOBBY && (
+        <BattleLobby 
+            onBack={goHome} 
+            onBattleStart={startBattle}
+            playerName={playerName || user?.displayName || 'Anonim'}
+        />
+      )}
+
+      {gameState === GameState.BATTLE_ARENA && activeBattleId && (
+        <BattleArena 
+            battleId={activeBattleId} 
+            onLeave={goHome}
+        />
       )}
     </main>
   );

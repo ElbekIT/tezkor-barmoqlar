@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem } from 'lucide-react';
+import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem, Swords } from 'lucide-react';
 import { auth, googleProvider, db } from '../firebaseConfig';
 import { signInWithPopup, signOut, User, updateProfile } from 'firebase/auth';
 import { ref, onValue } from 'firebase/database';
@@ -12,6 +12,7 @@ interface MainMenuProps {
   onOpenCrash: () => void;
   onOpenWheel: () => void;
   onOpenShop: () => void;
+  onOpenBattle: () => void;
   user: User | null;
 }
 
@@ -22,6 +23,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onOpenCrash,
   onOpenWheel,
   onOpenShop,
+  onOpenBattle,
   user 
 }) => {
   const [nickname, setNickname] = useState('');
@@ -181,6 +183,16 @@ const MainMenu: React.FC<MainMenuProps> = ({
               <span className="relative flex items-center justify-center gap-2">
                 <Zap className="w-6 h-6" /> BOSHLASH
               </span>
+            </button>
+
+            <button
+              onClick={onOpenBattle}
+              className="w-full group relative px-8 py-4 bg-red-600 text-white font-bold text-xl rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.5)]"
+            >
+               <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+               <span className="relative flex items-center justify-center gap-2">
+                 <Swords className="w-6 h-6" /> JANG (BATTLE)
+               </span>
             </button>
             
             <button
