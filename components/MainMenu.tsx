@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem, Swords, ScanLine, Palette } from 'lucide-react';
+import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem, Swords } from 'lucide-react';
 import { auth, googleProvider, db } from '../firebaseConfig';
 import { signInWithPopup, signOut, User, updateProfile } from 'firebase/auth';
 import { ref, onValue } from 'firebase/database';
@@ -13,7 +13,6 @@ interface MainMenuProps {
   onOpenWheel: () => void;
   onOpenShop: () => void;
   onOpenBattle: () => void;
-  onOpenCheckScanner: () => void;
   user: User | null;
 }
 
@@ -25,7 +24,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onOpenWheel,
   onOpenShop,
   onOpenBattle,
-  onOpenCheckScanner,
   user 
 }) => {
   const [nickname, setNickname] = useState('');
@@ -187,7 +185,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
               </span>
             </button>
 
-            {/* Top Row */}
             <button
               onClick={onOpenBattle}
               className="w-full group relative px-8 py-4 bg-red-600 text-white font-bold text-xl rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.5)]"
@@ -205,7 +202,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
               <Trophy className="w-5 h-5" /> REYTING
             </button>
 
-            {/* Games Grid */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={onOpenCrash}
@@ -223,28 +219,21 @@ const MainMenu: React.FC<MainMenuProps> = ({
               </button>
             </div>
 
-            {/* Services Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex gap-3">
+              <button
+                onClick={onOpenChat}
+                className="flex-1 px-4 py-3 bg-gray-700 text-green-400 font-bold rounded-xl hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" /> CHAT
+              </button>
+
               <button
                 onClick={onOpenShop}
-                className="col-span-1 px-4 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-500 font-bold rounded-xl hover:bg-yellow-500 hover:text-black transition-all flex flex-col items-center justify-center gap-1"
+                className="flex-1 px-4 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-500 font-bold rounded-xl hover:bg-yellow-500 hover:text-black transition-all flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" /> DO'KON
               </button>
-              <button
-                onClick={onOpenCheckScanner}
-                className="col-span-1 px-4 py-3 bg-blue-500/10 border border-blue-500 text-blue-400 font-bold rounded-xl hover:bg-blue-500 hover:text-white transition-all flex flex-col items-center justify-center gap-1"
-              >
-                <ScanLine className="w-5 h-5" /> CHEKNI YUKLASH
-              </button>
             </div>
-
-            <button
-                onClick={onOpenChat}
-                className="w-full px-4 py-3 bg-gray-700 text-green-400 font-bold rounded-xl hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-5 h-5" /> ONLINE CHAT
-              </button>
 
             <button
               type="button"

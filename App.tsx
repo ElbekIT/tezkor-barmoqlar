@@ -11,8 +11,6 @@ import WheelGame from './components/WheelGame';
 import Shop from './components/Shop';
 import BattleLobby from './components/BattleLobby';
 import BattleArena from './components/BattleArena';
-import DesignShop from './components/DesignShop';
-import CheckScanner from './components/CheckScanner';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
@@ -70,7 +68,6 @@ const App: React.FC = () => {
           onOpenWheel={() => setGameState(GameState.WHEEL)}
           onOpenShop={() => setGameState(GameState.SHOP)}
           onOpenBattle={() => setGameState(GameState.BATTLE_LOBBY)}
-          onOpenCheckScanner={() => setGameState(GameState.CHECK_SCANNER)}
           user={user}
         />
       )}
@@ -110,14 +107,6 @@ const App: React.FC = () => {
 
       {gameState === GameState.SHOP && (
         <Shop onBack={goHome} />
-      )}
-
-      {gameState === GameState.DESIGN_SHOP && (
-        <DesignShop onBack={goHome} />
-      )}
-
-      {gameState === GameState.CHECK_SCANNER && (
-        <CheckScanner onBack={goHome} />
       )}
 
       {gameState === GameState.BATTLE_LOBBY && (
