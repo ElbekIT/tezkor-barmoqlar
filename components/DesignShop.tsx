@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Palette, Youtube, Instagram, Facebook, MessageCircle, Image, Monitor, User, Coins, Download, CheckCircle, Globe, Video, Smile, Search, X, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Palette, Youtube, Instagram, Facebook, MessageCircle, Image, Monitor, User, Coins, Download, CheckCircle, Video, Smile, Search, X, ChevronRight, Globe, Hash, Edit3 } from 'lucide-react';
 import { db, auth } from '../firebaseConfig';
 import { ref, runTransaction, onValue } from "firebase/database";
 
@@ -14,7 +14,7 @@ const PLATFORMS = [
     { id: 'instagram', name: 'Instagram', icon: <Instagram className="text-pink-500" /> },
     { id: 'tiktok', name: 'TikTok', icon: <span className="font-black text-xs bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-pink-500">TK</span> },
     { id: 'facebook', name: 'Facebook', icon: <Facebook className="text-blue-600" /> },
-    { id: 'ok', name: 'Odnoklassniki', icon: <span className="font-bold text-orange-500">OK</span> },
+    { id: 'ok', name: 'Ok.ru', icon: <span className="font-bold text-orange-500">OK</span> },
 ];
 
 const ALL_GAMES = [
@@ -75,33 +75,27 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
         switch (pid) {
             case 'youtube':
                 return [
-                    { id: 'preview', name: 'Preview (Thumbnail)', price: 100, icon: <Image /> },
-                    { id: 'banner', name: 'Banner (Muqova)', price: 150, icon: <Monitor /> },
-                    { id: 'avatar', name: 'Avatar (Logo)', price: 80, icon: <User /> },
-                    { id: 'intro', name: 'Intro (Video)', price: 300, icon: <Video /> },
-                    { id: 'outro', name: 'Outro (Video)', price: 200, icon: <Video /> },
+                    { id: 'preview', name: 'Preview', price: 100, icon: <Image size={18} /> },
+                    { id: 'banner', name: 'Banner', price: 150, icon: <Monitor size={18} /> },
+                    { id: 'avatar', name: 'Logo', price: 80, icon: <User size={18} /> },
+                    { id: 'intro', name: 'Intro', price: 300, icon: <Video size={18} /> },
                 ];
             case 'telegram':
                 return [
-                    { id: 'avatar', name: 'Kanal Avatari', price: 80, icon: <User /> },
-                    { id: 'post', name: 'Post Dizayni', price: 50, icon: <Image /> },
-                    { id: 'sticker_pack', name: 'Sticker Pack (5 dona)', price: 250, icon: <Smile /> },
+                    { id: 'avatar', name: 'Avatar', price: 80, icon: <User size={18} /> },
+                    { id: 'post', name: 'Post', price: 50, icon: <Image size={18} /> },
+                    { id: 'sticker_pack', name: 'Stickers', price: 250, icon: <Smile size={18} /> },
                 ];
             case 'instagram':
                 return [
-                    { id: 'post', name: 'Post (Rasm)', price: 60, icon: <Image /> },
-                    { id: 'stories', name: 'Stories Dizayn', price: 50, icon: <Monitor /> },
-                    { id: 'highlights', name: 'Highlights (Muqova)', price: 40, icon: <CheckCircle /> },
-                ];
-            case 'tiktok':
-                return [
-                    { id: 'avatar', name: 'Profil Rasmi', price: 80, icon: <User /> },
-                    { id: 'video_edit', name: 'Video Montaj (15s)', price: 200, icon: <Video /> },
+                    { id: 'post', name: 'Post', price: 60, icon: <Image size={18} /> },
+                    { id: 'stories', name: 'Stories', price: 50, icon: <Monitor size={18} /> },
+                    { id: 'highlights', name: 'Highlights', price: 40, icon: <CheckCircle size={18} /> },
                 ];
             default:
                 return [
-                    { id: 'avatar', name: 'Avatar', price: 80, icon: <User /> },
-                    { id: 'banner', name: 'Banner', price: 120, icon: <Monitor /> },
+                    { id: 'avatar', name: 'Avatar', price: 80, icon: <User size={18} /> },
+                    { id: 'banner', name: 'Banner', price: 120, icon: <Monitor size={18} /> },
                 ];
         }
     };
@@ -207,7 +201,7 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
             ctx.fillText(text, 70, startY + (i * lineHeight));
         });
 
-        // Izoh (Multiline support basic)
+        // Izoh
         ctx.fillStyle = '#aaa';
         ctx.font = 'italic 18px Arial';
         const commentPreview = comment.length > 30 ? comment.substring(0, 30) + '...' : comment;
@@ -219,15 +213,15 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
         ctx.textAlign = 'center';
         ctx.fillText(`TO'LANDI`, width / 2, height - 160);
         
-        // Footer Key (Security)
+        // Footer Key
         ctx.font = '14px Monospace';
         ctx.fillStyle = '#555';
-        ctx.fillText(`SECURITY KEY: ${auth.currentUser?.uid.substring(0,8)}-${Date.now()}`, width / 2, height - 30);
+        ctx.fillText(`SEC-KEY: ${auth.currentUser?.uid.substring(0,8)}-${Date.now()}`, width / 2, height - 30);
     };
 
     const handleOrder = async () => {
         if (!designName || !phoneNumber || !comment.trim()) {
-            alert("Barcha maydonlarni to'ldiring! Izoh yozish majburiy.");
+            alert("Iltimos, barcha maydonlarni to'ldiring!");
             return;
         }
         const price = getPrice();
@@ -242,7 +236,7 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
                 const userRef = ref(db, `users/${auth.currentUser.uid}/coins`);
                 await runTransaction(userRef, (c) => {
                     if ((c || 0) >= price) return c - price;
-                    return c; // Abort if changed
+                    return c;
                 });
             } catch (e) {
                 console.error(e);
@@ -254,7 +248,7 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
         const newOrderId = Math.random().toString(36).substr(2, 9).toUpperCase();
         setOrderId(newOrderId);
 
-        // 3. Start Loading Animation
+        // 3. Start Loading
         setStep(2);
         let progress = 0;
         const interval = setInterval(() => {
@@ -263,7 +257,7 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
             if (progress >= 100) {
                 clearInterval(interval);
                 setStep(3);
-                setTimeout(() => generateCheck(), 200); // Wait for canvas render
+                setTimeout(() => generateCheck(), 200);
             }
         }, 30);
     };
@@ -288,8 +282,7 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
                         {loadingProgress}%
                     </div>
                 </div>
-                <h2 className="text-2xl text-white font-bold mb-2 text-center">Chek generatsiya qilinmoqda...</h2>
-                <p className="text-gray-400 text-sm text-center">Iltimos, sahifadan chiqmang.</p>
+                <h2 className="text-xl text-white font-bold mb-2 text-center">Chek tayyorlanmoqda...</h2>
             </div>
         );
     }
@@ -298,22 +291,22 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
         return (
             <div className="min-h-screen bg-gray-900 flex flex-col items-center p-4 pt-10 overflow-y-auto">
                 <h2 className="text-3xl text-green-400 font-black mb-4 uppercase text-center animate-pop">Muvaffaqiyatli!</h2>
-                <p className="text-gray-400 mb-6 text-center max-w-xs text-sm">Chekni yuklab oling va "Chekni Yuklash" bo'limiga yuklang.</p>
+                <p className="text-gray-400 mb-6 text-center text-xs">Chekni yuklab olib, "Chekni Yuklash" bo'limiga o'ting.</p>
                 
-                <div className="bg-gray-800 p-2 rounded-xl border border-gray-700 shadow-2xl mb-6 max-w-sm w-full">
-                    <canvas ref={canvasRef} className="w-full h-auto rounded-lg" />
+                <div className="bg-gray-800 p-1 rounded-lg border border-gray-700 shadow-2xl mb-6 max-w-xs w-full">
+                    <canvas ref={canvasRef} className="w-full h-auto rounded" />
                 </div>
 
                 <button 
                     onClick={downloadCheck} 
-                    className="w-full max-w-sm py-4 bg-neonBlue text-black font-black rounded-xl flex items-center justify-center gap-2 hover:bg-white transition-colors animate-pop shadow-[0_0_20px_rgba(0,243,255,0.4)]"
+                    className="w-full max-w-xs py-3 bg-neonBlue text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,243,255,0.4)]"
                 >
-                    <Download /> CHEKNI YUKLASH
+                    <Download size={20} /> YUKLAB OLISH
                 </button>
 
                 <button 
                     onClick={onBack} 
-                    className="mt-6 py-3 px-6 bg-gray-800 rounded-lg text-gray-400 hover:text-white"
+                    className="mt-4 text-gray-500 text-sm hover:text-white underline"
                 >
                     Menyuga qaytish
                 </button>
@@ -322,164 +315,172 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 p-4 flex flex-col items-center">
-            {/* Header */}
-            <div className="w-full max-w-2xl flex items-center gap-4 mb-6 sticky top-0 bg-gray-900/90 backdrop-blur-sm z-20 py-2">
-                <button onClick={onBack} className="p-2 bg-gray-800 rounded-lg text-white hover:bg-gray-700"><ArrowLeft /></button>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Palette className="text-purple-500" /> Dizayn Buyurtma
-                </h2>
-                <div className="ml-auto bg-gray-800 px-3 py-1 rounded-lg border border-yellow-500/30 text-yellow-400 font-bold text-sm shadow-lg">
-                    {coins} <Coins className="inline w-3 h-3" />
+        <div className="min-h-screen bg-gray-900 flex flex-col">
+            {/* Compact Header */}
+            <div className="bg-gray-800/90 backdrop-blur p-3 flex items-center justify-between sticky top-0 z-20 border-b border-gray-700">
+                <div className="flex items-center gap-3">
+                    <button onClick={onBack} className="p-1.5 bg-gray-700 rounded text-white"><ArrowLeft size={20} /></button>
+                    <div>
+                        <h2 className="font-bold text-white text-base leading-tight">Dizayn</h2>
+                        <p className="text-[10px] text-gray-400">Service</p>
+                    </div>
+                </div>
+                <div className="bg-gray-900 px-3 py-1.5 rounded-full border border-yellow-500/30 text-yellow-400 font-bold text-xs shadow-lg flex items-center gap-1">
+                    {coins} <Coins size={12} />
                 </div>
             </div>
 
-            <div className="w-full max-w-md space-y-6 pb-24">
+            <div className="flex-1 overflow-y-auto p-4 pb-24 space-y-5">
                 
-                {/* 1. Platform */}
-                <section className="space-y-2 animate-pop" style={{animationDelay: '0.1s'}}>
-                    <label className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
-                        <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">1</span>
-                        Platformani tanlang
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
+                {/* 1. Platforms (Horizontal Scroll) */}
+                <div className="space-y-2">
+                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Platforma</p>
+                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                         {PLATFORMS.map(p => (
                             <button 
                                 key={p.id} 
                                 onClick={() => setPlatform(p.id)}
-                                className={`p-3 rounded-xl flex flex-col items-center gap-2 border transition-all ${platform === p.id ? 'bg-purple-600/20 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'bg-gray-800 border-gray-700 text-gray-500 hover:bg-gray-700'}`}
+                                className={`flex-shrink-0 flex flex-col items-center justify-center w-20 h-20 rounded-2xl border-2 transition-all ${platform === p.id ? 'bg-gray-800 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'bg-gray-800/50 border-gray-700 opacity-70'}`}
                             >
-                                <div className="transform scale-110">{p.icon}</div>
-                                <span className="text-[10px] font-bold">{p.name}</span>
+                                <div className="transform scale-110 mb-1">{p.icon}</div>
+                                <span className={`text-[10px] font-bold ${platform === p.id ? 'text-white' : 'text-gray-500'}`}>{p.name}</span>
                             </button>
                         ))}
-                    </div>
-                </section>
+                     </div>
+                </div>
 
-                {/* 2. Design Type - SCROLLABLE CONTAINER */}
-                <section className="space-y-2 animate-pop" style={{animationDelay: '0.2s'}}>
-                    <label className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
-                        <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">2</span>
-                        Xizmat turi
-                    </label>
-                    
-                    <div className="max-h-[240px] overflow-y-auto pr-1 border border-gray-800 rounded-2xl bg-gray-900/50 p-2">
-                        <div className="space-y-2">
-                            {currentDesignTypes.map(d => (
-                                <button 
-                                    key={d.id} 
-                                    onClick={() => setDesignType(d.id)}
-                                    className={`w-full p-3 rounded-xl flex justify-between items-center border transition-all ${designType === d.id ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg' : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-750'}`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg ${designType === d.id ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-500'}`}>
-                                            {d.icon}
-                                        </div>
-                                        <span className="font-bold text-sm text-left">{d.name}</span>
-                                    </div>
-                                    <div className="bg-gray-900 px-2 py-1 rounded-lg border border-gray-700 whitespace-nowrap">
-                                        <span className="font-mono text-yellow-400 font-bold text-xs">{d.price} C</span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                {/* 2. Services (Grid 2 Columns) */}
+                <div className="space-y-2">
+                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Xizmat Turi</p>
+                     <div className="grid grid-cols-2 gap-3">
+                        {currentDesignTypes.map(d => (
+                            <button 
+                                key={d.id} 
+                                onClick={() => setDesignType(d.id)}
+                                className={`relative p-3 rounded-xl border-2 text-left transition-all ${designType === d.id ? 'bg-blue-600/10 border-blue-500' : 'bg-gray-800 border-gray-700'}`}
+                            >
+                                <div className={`mb-2 p-2 rounded-lg w-fit ${designType === d.id ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                                    {d.icon}
+                                </div>
+                                <div className="font-bold text-white text-sm">{d.name}</div>
+                                <div className="absolute top-3 right-3 text-xs font-mono text-yellow-400 font-bold">
+                                    {d.price} C
+                                </div>
+                            </button>
+                        ))}
+                     </div>
+                </div>
 
-                {/* 3. Game Selection */}
-                <section className="space-y-2 animate-pop" style={{animationDelay: '0.3s'}}>
-                    <label className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2">
-                        <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">3</span>
-                        O'yin turi
-                    </label>
+                {/* 3. Game & Details (Compact Form) */}
+                <div className="space-y-3">
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Ma'lumotlar</p>
                     
+                    {/* Game Selector */}
                     <button 
                         onClick={() => setShowGameModal(true)}
-                        className="w-full bg-gray-800 border border-gray-600 text-white p-4 rounded-xl flex justify-between items-center hover:border-blue-500 transition-colors"
+                        className="w-full bg-gray-800 border border-gray-700 p-3 rounded-xl flex items-center justify-between text-sm text-white hover:border-gray-500"
                     >
-                        <span className="font-bold">{gameType}</span>
-                        <ChevronDown className="text-gray-500" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-1.5 bg-gray-700 rounded"><Globe size={16} /></div>
+                            <span>{gameType}</span>
+                        </div>
+                        <ChevronRight size={16} className="text-gray-500" />
                     </button>
-                </section>
 
-                {/* 4. Details Form */}
-                <section className="space-y-4 bg-gray-800 p-5 rounded-2xl border border-gray-700 animate-pop" style={{animationDelay: '0.4s'}}>
-                    <label className="text-gray-400 text-xs font-bold uppercase flex items-center gap-2 mb-2">
-                        <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">4</span>
-                        Ma'lumotlar
-                    </label>
-                    
-                    <div>
-                        <label className="text-xs text-gray-500 mb-1 block">Dizayndagi ism (Nick):</label>
-                        <input 
-                            type="text" 
-                            placeholder="Masalan: BEST_GAMER" 
-                            value={designName}
-                            onChange={(e) => setDesignName(e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded-xl outline-none focus:border-blue-500 transition-colors"
-                        />
-                    </div>
+                    {/* Inputs Grid */}
+                    <div className="grid grid-cols-1 gap-3">
+                        <div className="bg-gray-800 border border-gray-700 rounded-xl p-1 flex items-center">
+                            <div className="p-2 text-gray-500"><User size={16} /></div>
+                            <input 
+                                type="text" 
+                                placeholder="Nick (Ismingiz)" 
+                                value={designName}
+                                onChange={(e) => setDesignName(e.target.value)}
+                                className="bg-transparent w-full text-sm text-white p-2 outline-none placeholder-gray-600"
+                            />
+                        </div>
 
-                    <div>
-                        <label className="text-xs text-gray-500 mb-1 block">Telefon raqam:</label>
                         <div className="flex gap-2">
                             <button 
                                 onClick={() => setShowCountryModal(true)}
-                                className="relative bg-gray-900 border border-gray-600 rounded-xl px-3 flex items-center gap-2 hover:border-blue-500 transition-colors min-w-[100px]"
+                                className="bg-gray-800 border border-gray-700 rounded-xl px-3 flex items-center gap-1 text-lg"
                             >
-                                <span className="text-2xl">{selectedCountry.flag}</span>
-                                <span className="text-gray-400 text-xs">▼</span>
+                                {selectedCountry.flag}
                             </button>
-                            <div className="flex-1 relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-mono text-sm">+{selectedCountry.code}</span>
+                            <div className="flex-1 bg-gray-800 border border-gray-700 rounded-xl p-1 flex items-center">
+                                <span className="pl-3 text-gray-500 text-sm font-mono">{phoneCode}</span>
                                 <input 
                                     type="text" 
-                                    placeholder={selectedCountry.mask}
+                                    placeholder={selectedCountry.mask.replace(/#/g, '_')}
                                     value={phoneNumber}
                                     onChange={handlePhoneChange}
-                                    className="w-full bg-gray-900 border border-gray-600 text-white p-3 pl-14 rounded-xl outline-none focus:border-blue-500 font-mono transition-colors"
+                                    className="bg-transparent w-full text-sm text-white p-2 outline-none placeholder-gray-600 font-mono"
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    <div>
-                         <label className="text-xs text-gray-500 mb-1 block">Izoh (Majburiy):</label>
-                         <textarea 
-                            placeholder="Dizayn qanday bo'lishi kerak? Ranglar, g'oyalar..." 
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-600 text-white p-3 rounded-xl outline-none focus:border-blue-500 h-24 resize-none transition-colors"
-                        ></textarea>
-                        {comment.trim().length === 0 && <p className="text-red-500 text-[10px] mt-1">* Izoh yozish shart</p>}
+                        <div className="bg-gray-800 border border-gray-700 rounded-xl p-1 flex items-start">
+                            <div className="p-2 text-gray-500 mt-1"><Edit3 size={16} /></div>
+                            <textarea 
+                                placeholder="Izoh yozing..." 
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                className="bg-transparent w-full text-sm text-white p-2 outline-none placeholder-gray-600 h-16 resize-none"
+                            ></textarea>
+                        </div>
                     </div>
-                </section>
-
-                {/* Footer Pay */}
-                <div className="fixed bottom-0 left-0 w-full bg-gray-900/95 backdrop-blur border-t border-gray-800 p-4 flex items-center justify-between z-30 safe-area-pb">
-                    <div>
-                        <p className="text-gray-400 text-[10px] uppercase font-bold">Jami to'lov:</p>
-                        <p className="text-2xl font-black text-yellow-400 flex items-center gap-1">{getPrice()} <Coins size={20} /></p>
-                    </div>
-                    <button 
-                        onClick={handleOrder}
-                        disabled={coins < getPrice()}
-                        className={`px-6 py-3 rounded-xl font-bold text-sm md:text-lg flex items-center gap-2 transition-all shadow-lg ${coins >= getPrice() ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 shadow-purple-500/30' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
-                    >
-                        {coins >= getPrice() ? (
-                            <> <CheckCircle size={18} /> ZAKAZ BERISH</>
-                        ) : (
-                            'MABLAG\' YETMAS'
-                        )}
-                    </button>
                 </div>
-
             </div>
 
-            {/* COUNTRY MODAL */}
+            {/* Fixed Footer */}
+            <div className="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-800 p-4 z-30 safe-area-pb">
+                <button 
+                    onClick={handleOrder}
+                    disabled={coins < getPrice()}
+                    className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 ${coins >= getPrice() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
+                >
+                    {coins >= getPrice() ? (
+                        <>TO'LASH: {getPrice()} <Coins size={16} /></>
+                    ) : (
+                        'MABLAG\' YETARLI EMAS'
+                    )}
+                </button>
+            </div>
+
+            {/* Modals */}
+            {showGameModal && (
+                <div className="fixed inset-0 bg-black/90 z-50 p-4 flex flex-col animate-pop">
+                    <div className="flex items-center gap-3 mb-4">
+                         <button onClick={() => setShowGameModal(false)} className="p-2 bg-gray-800 rounded-full text-white"><ArrowLeft /></button>
+                         <div className="flex-1 relative">
+                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                             <input 
+                                 type="text" 
+                                 placeholder="O'yinni qidirish..." 
+                                 value={gameSearch}
+                                 onChange={(e) => setGameSearch(e.target.value)}
+                                 className="w-full bg-gray-800 rounded-full pl-10 pr-4 py-2 text-white text-sm outline-none"
+                                 autoFocus
+                             />
+                         </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto space-y-2">
+                        {ALL_GAMES.filter(g => g.toLowerCase().includes(gameSearch.toLowerCase())).map(g => (
+                            <button 
+                                key={g}
+                                onClick={() => { setGameType(g); setShowGameModal(false); }}
+                                className={`w-full p-4 rounded-xl text-left text-sm font-bold border ${gameType === g ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}
+                            >
+                                {g}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {showCountryModal && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                    <div className="bg-gray-800 w-full max-w-sm rounded-2xl border border-gray-700 max-h-[80vh] flex flex-col animate-pop">
+                <div className="fixed inset-0 bg-black/90 z-50 p-4 flex flex-col justify-center">
+                    <div className="bg-gray-900 rounded-2xl border border-gray-700 max-h-[70vh] flex flex-col">
                         <div className="p-4 border-b border-gray-700 flex justify-between items-center">
                             <h3 className="text-white font-bold">Davlatni tanlang</h3>
                             <button onClick={() => setShowCountryModal(false)}><X className="text-gray-400" /></button>
@@ -489,54 +490,15 @@ const DesignShop: React.FC<DesignShopProps> = ({ onBack }) => {
                                 <button 
                                     key={c.code}
                                     onClick={() => handleCountrySelect(c)}
-                                    className="w-full flex items-center gap-4 p-3 hover:bg-gray-700 rounded-xl transition-colors text-left"
+                                    className="w-full flex items-center gap-4 p-3 hover:bg-gray-800 rounded-xl transition-colors text-left border-b border-gray-800 last:border-0"
                                 >
-                                    <span className="text-3xl">{c.flag}</span>
+                                    <span className="text-2xl">{c.flag}</span>
                                     <div>
-                                        <p className="text-white font-bold">{c.name}</p>
-                                        <p className="text-gray-400 text-xs">+{c.code}</p>
+                                        <p className="text-white font-bold text-sm">{c.name}</p>
+                                        <p className="text-gray-500 text-xs">+{c.code}</p>
                                     </div>
                                 </button>
                             ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* GAMES MODAL */}
-            {showGameModal && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                    <div className="bg-gray-800 w-full max-w-sm rounded-2xl border border-gray-700 max-h-[80vh] flex flex-col animate-pop">
-                        <div className="p-4 border-b border-gray-700">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-white font-bold">O'yinni tanlang</h3>
-                                <button onClick={() => setShowGameModal(false)}><X className="text-gray-400" /></button>
-                            </div>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input 
-                                    type="text" 
-                                    placeholder="Qidirish..." 
-                                    value={gameSearch}
-                                    onChange={(e) => setGameSearch(e.target.value)}
-                                    className="w-full bg-gray-900 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:border-blue-500 outline-none"
-                                    autoFocus
-                                />
-                            </div>
-                        </div>
-                        <div className="overflow-y-auto p-2 flex-1">
-                            {ALL_GAMES.filter(g => g.toLowerCase().includes(gameSearch.toLowerCase())).map(g => (
-                                <button 
-                                    key={g}
-                                    onClick={() => { setGameType(g); setShowGameModal(false); }}
-                                    className={`w-full p-3 hover:bg-gray-700 rounded-xl transition-colors text-left text-sm font-bold ${gameType === g ? 'bg-blue-600/20 text-blue-400' : 'text-white'}`}
-                                >
-                                    {g}
-                                </button>
-                            ))}
-                            {ALL_GAMES.filter(g => g.toLowerCase().includes(gameSearch.toLowerCase())).length === 0 && (
-                                <p className="text-center text-gray-500 py-4 text-sm">O'yin topilmadi</p>
-                            )}
                         </div>
                     </div>
                 </div>
