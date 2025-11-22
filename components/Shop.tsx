@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ShoppingCart, Lock, Unlock, Gem, ExternalLink, RefreshCw, Coins, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Lock, Unlock, Gem, RefreshCw, Coins, Palette } from 'lucide-react';
 import { db, auth } from '../firebaseConfig';
 import { ref, runTransaction, onValue } from "firebase/database";
+import DesignShop from './DesignShop';
 
 interface ShopProps {
   onBack: () => void;
@@ -11,9 +12,6 @@ interface ShopProps {
 const CHANNEL_PRICE = 10000;
 const CHANNEL_URL = "https://t.me/pubg_cheat_uzro";
 
-// Exchange Packages: Cost (Coins) -> Reward (Diamonds)
-// Ratio: 10 Coins = 1 Diamond approx, with some variance logic if needed.
-// User requested: "50 taga 5 ta", "100 taga 10 ta", "600 ta olmos uchun qancha coins".
 const EXCHANGE_PACKAGES = [
     { cost: 50, reward: 5 },
     { cost: 100, reward: 10 },
@@ -27,7 +25,7 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
   const [diamonds, setDiamonds] = useState(0);
   const [coins, setCoins] = useState(0);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'vip' | 'exchange'>('exchange');
+  const [activeTab, setActiveTab] = useState<'vip' | 'exchange' | 'design'>('exchange');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -92,11 +90,14 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
             return userData;
         });
         setMessage(`Muvaffaqiyatli! +${reward} Olmos.`);
-        // Visual effect could be added here
     } catch(e) {
         console.error(e);
         setMessage("Ayirboshlashda xatolik.");
     }
+  }
+
+  if (activeTab === 'design') {
+      return <DesignShop onBack={() => setActiveTab('exchange')} />;
   }
 
   return (
@@ -117,23 +118,29 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
           </div>
       </div>
 
-      <div className="w-full max-w-md flex mb-6 bg-gray-800 p-1 rounded-xl">
+      <div className="w-full max-w-md flex mb-6 bg-gray-800 p-1 rounded-xl overflow-x-auto">
           <button 
             onClick={() => { setActiveTab('exchange'); setMessage(''); }}
-            className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'exchange' ? 'bg-gray-700 text-white shadow' : 'text-gray-400'}`}
+            className={`flex-1 py-2 px-2 whitespace-nowrap rounded-lg font-bold text-xs md:text-sm transition-all ${activeTab === 'exchange' ? 'bg-gray-700 text-white shadow' : 'text-gray-400'}`}
           >
-             Valyuta Ayirboshlash
+             Valyuta
           </button>
           <button 
             onClick={() => { setActiveTab('vip'); setMessage(''); }}
-            className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'vip' ? 'bg-blue-600 text-white shadow' : 'text-gray-400'}`}
+            className={`flex-1 py-2 px-2 whitespace-nowrap rounded-lg font-bold text-xs md:text-sm transition-all ${activeTab === 'vip' ? 'bg-blue-600 text-white shadow' : 'text-gray-400'}`}
           >
              VIP Do'kon
+          </button>
+          <button 
+            onClick={() => { setActiveTab('design'); setMessage(''); }}
+            className={`flex-1 py-2 px-2 whitespace-nowrap rounded-lg font-bold text-xs md:text-sm transition-all ${activeTab === 'design' ? 'bg-purple-600 text-white shadow' : 'text-gray-400'}`}
+          >
+             Dizayn Xizmati
           </button>
       </div>
 
       {message && (
-          <div className="mb-4 px-4 py-2 bg-gray-800 border border-green-500/50 rounded-lg">
+          <div className="mb-4 px-4 py-2 bg-gray-800 border border-green-500/50 rounded-lg animate-pulse">
               <p className="text-green-400 text-sm font-bold text-center">{message}</p>
           </div>
       )}
@@ -217,7 +224,6 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
                 </div>
              </div>
          )}
-
       </div>
     </div>
   );
