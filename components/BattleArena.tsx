@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db, auth } from '../firebaseConfig';
 import { ref, onValue, update, runTransaction } from "firebase/database";
 import Game from './Game';
@@ -14,8 +14,10 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
   const [battleData, setBattleData] = useState<any>(null);
   const [myBalance, setMyBalance] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [resultMessage, setResultMessage] = useState("");
   const [amIPlayer1, setAmIPlayer1] = useState(false);
+  
+  // Timer Ref to prevent double counting
+  const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const battleRef = ref(db, `battles/${battleId}`);
@@ -23,19 +25,26 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
       const data = snapshot.val();
       if (data) {
         setBattleData(data);
-        setAmIPlayer1(data.player1.uid === auth.currentUser?.uid);
+        const isP1 = data.player1.uid === auth.currentUser?.uid;
+        setAmIPlayer1(isP1);
 
         // Sync logic
-        if (data.status === 'countdown' && countdown === null) {
-             startLocalCountdown();
+        if (data.status === 'countdown') {
+             // Only start timer if it hasn't started locally yet
+             if (timerRef.current === null) {
+                 startLocalCountdown(isP1);
+             }
         }
       } else {
-        // Battle deleted (opponent left?)
+        // Battle deleted
         onLeave();
       }
     });
-    return () => unsub();
-  }, [battleId, countdown, onLeave]);
+    return () => {
+        unsub();
+        if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [battleId, onLeave]);
 
   useEffect(() => {
       if(auth.currentUser && battleData) {
@@ -43,18 +52,21 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
           const userRef = ref(db, `users/${auth.currentUser.uid}/${currency}`);
           onValue(userRef, (snap) => setMyBalance(snap.val() || 0));
       }
-  }, [battleData]);
+  }, [battleData?.bet?.currency]); // Optimized dependency
 
-  const startLocalCountdown = () => {
+  const startLocalCountdown = (isP1: boolean) => {
       let count = 10;
       setCountdown(count);
-      const timer = setInterval(() => {
+      
+      timerRef.current = window.setInterval(() => {
           count--;
           setCountdown(count);
           if (count <= 0) {
-              clearInterval(timer);
-              // Only Player 1 triggers the status update to avoid race conditions
-              if (amIPlayer1) {
+              if (timerRef.current) clearInterval(timerRef.current);
+              timerRef.current = null;
+              
+              // Use the isP1 value passed at the start of the timer closure
+              if (isP1) {
                   update(ref(db, `battles/${battleId}`), { status: 'playing' });
               }
           }
@@ -63,7 +75,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
 
   const handleSetBet = async (amount: number, currency: 'coins' | 'diamonds') => {
       await update(ref(db, `battles/${battleId}/bet`), { amount, currency });
-      // Reset ready status if bet changes
       await update(ref(db, `battles/${battleId}/player1`), { ready: false });
       await update(ref(db, `battles/${battleId}/player2`), { ready: false });
   };
@@ -85,11 +96,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
 
       await update(ref(db, `battles/${battleId}/${playerKey}`), { ready: true });
 
-      // Check if both ready
-      // We need to read fresh data, but simpler to let the listener handle it.
-      // However, inside this function we don't have fresh data immediately.
-      // Trigger a cloud function or client side check? 
-      // Simple client side check: if opponent is ALREADY ready in current state, then start.
       const opponentKey = amIPlayer1 ? 'player2' : 'player1';
       if (battleData[opponentKey].ready) {
           update(ref(db, `battles/${battleId}`), { status: 'countdown' });
@@ -98,23 +104,10 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
 
   const handleGameOver = async (score: number) => {
       const playerKey = amIPlayer1 ? 'player1' : 'player2';
-      await update(ref(db, `battles/${battleId}/${playerKey}`), { score: score });
+      await update(ref(db, `battles/${battleId}/${playerKey}`), { score: score, finished: true });
       
-      // Check winner
-      // Wait for opponent score. Listener will update UI.
-      // If both scores > 0 (or just present? score can be 0).
-      // We need a 'finished' flag or check if both scores are submitted.
-      // Actually, let's just wait for both to set score.
-      
-      // Simple check: if opponent score is present in DB (we can't know for sure if 0 is "no score" or "0 score").
-      // Let's assume score is -1 initially? No, default 0.
-      // Let's add a 'finished' field to player object.
-      await update(ref(db, `battles/${battleId}/${playerKey}`), { finished: true });
-      
-      // If both finished, determine winner
       const opponentKey = amIPlayer1 ? 'player2' : 'player1';
       if (battleData[opponentKey].finished) {
-          // I am the second one to finish. Calculate winner.
           const myScore = score;
           const oppScore = battleData[opponentKey].score;
           let winnerId = "";
@@ -125,13 +118,11 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
 
           await update(ref(db, `battles/${battleId}`), { status: 'finished', winner: winnerId });
 
-          // Distribute POT
           const pot = battleData.bet.amount * 2;
           if (winnerId !== "draw") {
               const winnerRef = ref(db, `users/${winnerId}/${battleData.bet.currency}`);
               await runTransaction(winnerRef, (val) => (val || 0) + pot);
           } else {
-              // Refund
               const p1Ref = ref(db, `users/${battleData.player1.uid}/${battleData.bet.currency}`);
               const p2Ref = ref(db, `users/${battleData.player2.uid}/${battleData.bet.currency}`);
               await runTransaction(p1Ref, (val) => (val || 0) + battleData.bet.amount);
@@ -144,7 +135,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
 
   // --- RENDER ---
 
-  // 1. BETTING PHASE
   if (battleData.status === 'betting' || battleData.status === 'accepted') {
       return (
           <div className="min-h-screen bg-gray-900 flex flex-col items-center p-4">
@@ -195,7 +185,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
       );
   }
 
-  // 2. COUNTDOWN
   if (battleData.status === 'countdown') {
       return (
           <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center">
@@ -205,18 +194,16 @@ const BattleArena: React.FC<BattleArenaProps> = ({ battleId, onLeave }) => {
       );
   }
 
-  // 3. PLAYING
   if (battleData.status === 'playing') {
       return (
           <Game 
             playerName={auth.currentUser?.displayName || 'Player'} 
             onGameOver={handleGameOver} 
-            onCancel={() => {/* Cannot cancel in battle easily without forfeit logic */}}
+            onCancel={() => {/* Cannot cancel */}}
           />
       );
   }
 
-  // 4. FINISHED
   if (battleData.status === 'finished') {
       const isWinner = battleData.winner === auth.currentUser?.uid;
       const isDraw = battleData.winner === 'draw';

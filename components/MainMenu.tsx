@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem, Swords } from 'lucide-react';
+import { Trophy, Zap, LogOut, Check, Edit2, MessageCircle, ShoppingCart, TrendingUp, Coins, Disc, Gem, Swords, Bomb } from 'lucide-react';
 import { auth, googleProvider, db } from '../firebaseConfig';
 import { signInWithPopup, signOut, User, updateProfile } from 'firebase/auth';
 import { ref, onValue } from 'firebase/database';
@@ -11,6 +11,7 @@ interface MainMenuProps {
   onOpenChat: () => void;
   onOpenCrash: () => void;
   onOpenWheel: () => void;
+  onOpenMines: () => void;
   onOpenShop: () => void;
   onOpenBattle: () => void;
   user: User | null;
@@ -22,6 +23,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onOpenChat,
   onOpenCrash,
   onOpenWheel,
+  onOpenMines,
   onOpenShop,
   onOpenBattle,
   user 
@@ -181,10 +183,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               <span className="relative flex items-center justify-center gap-2">
-                <Zap className="w-6 h-6" /> BOSHLASH
+                <Zap className="w-6 h-6" /> BOSHLASH (O'YIN)
               </span>
             </button>
 
+            {/* Top Row */}
             <button
               onClick={onOpenBattle}
               className="w-full group relative px-8 py-4 bg-red-600 text-white font-bold text-xl rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.5)]"
@@ -202,36 +205,44 @@ const MainMenu: React.FC<MainMenuProps> = ({
               <Trophy className="w-5 h-5" /> REYTING
             </button>
 
+            {/* Games Grid */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={onOpenCrash}
                 className="col-span-1 px-4 py-4 bg-gradient-to-br from-red-900 to-red-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
               >
                 <TrendingUp className="w-6 h-6 mb-1" /> 
-                CRASH (PRO)
+                CRASH
+              </button>
+              <button
+                onClick={onOpenMines}
+                className="col-span-1 px-4 py-4 bg-gradient-to-br from-emerald-900 to-emerald-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
+              >
+                <Bomb className="w-6 h-6 mb-1" /> 
+                MINALAR
               </button>
               <button
                 onClick={onOpenWheel}
-                className="col-span-1 px-4 py-4 bg-gradient-to-br from-purple-900 to-purple-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
+                className="col-span-2 px-4 py-4 bg-gradient-to-br from-purple-900 to-purple-600 text-white font-bold text-sm md:text-base rounded-xl hover:brightness-110 transition-all flex flex-col items-center justify-center gap-1 shadow-lg transform hover:scale-105"
               >
                 <Disc className="w-6 h-6 mb-1" /> 
                 OMAD DOIRASI
               </button>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={onOpenChat}
-                className="flex-1 px-4 py-3 bg-gray-700 text-green-400 font-bold rounded-xl hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-5 h-5" /> CHAT
-              </button>
-
+            {/* Shop & Chat */}
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={onOpenShop}
-                className="flex-1 px-4 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-500 font-bold rounded-xl hover:bg-yellow-500 hover:text-black transition-all flex items-center justify-center gap-2"
+                className="col-span-1 px-4 py-3 bg-yellow-500/10 border border-yellow-500 text-yellow-500 font-bold rounded-xl hover:bg-yellow-500 hover:text-black transition-all flex flex-col items-center justify-center gap-1"
               >
                 <ShoppingCart className="w-5 h-5" /> DO'KON
+              </button>
+              <button
+                onClick={onOpenChat}
+                className="col-span-1 px-4 py-3 bg-gray-700 text-green-400 font-bold rounded-xl hover:bg-gray-600 transition-all flex flex-col items-center justify-center gap-1"
+              >
+                <MessageCircle className="w-5 h-5" /> CHAT
               </button>
             </div>
 

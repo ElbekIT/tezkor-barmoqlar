@@ -8,6 +8,7 @@ import Leaderboard from './components/Leaderboard';
 import Chat from './components/Chat';
 import CrashGame from './components/CrashGame';
 import WheelGame from './components/WheelGame';
+import MinesGame from './components/MinesGame';
 import Shop from './components/Shop';
 import BattleLobby from './components/BattleLobby';
 import BattleArena from './components/BattleArena';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           onOpenChat={() => setGameState(GameState.CHAT)}
           onOpenCrash={() => setGameState(GameState.CRASH)}
           onOpenWheel={() => setGameState(GameState.WHEEL)}
+          onOpenMines={() => setGameState(GameState.MINES)}
           onOpenShop={() => setGameState(GameState.SHOP)}
           onOpenBattle={() => setGameState(GameState.BATTLE_LOBBY)}
           user={user}
@@ -103,6 +105,10 @@ const App: React.FC = () => {
 
       {gameState === GameState.WHEEL && (
         <WheelGame onBack={goHome} />
+      )}
+
+      {gameState === GameState.MINES && (
+        <MinesGame onBack={goHome} />
       )}
 
       {gameState === GameState.SHOP && (

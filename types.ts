@@ -15,6 +15,7 @@ export enum GameState {
   CHAT = 'CHAT',
   CRASH = 'CRASH',
   WHEEL = 'WHEEL',
+  MINES = 'MINES',
   SHOP = 'SHOP',
   BATTLE_LOBBY = 'BATTLE_LOBBY',
   BATTLE_ARENA = 'BATTLE_ARENA'
@@ -44,8 +45,8 @@ export interface UserProfile {
 
 export interface BattleSession {
   id: string;
-  player1: { uid: string; name: string; ready: boolean; score: number };
-  player2: { uid: string; name: string; ready: boolean; score: number };
+  player1: { uid: string; name: string; ready: boolean; score: number; finished?: boolean };
+  player2: { uid: string; name: string; ready: boolean; score: number; finished?: boolean };
   status: 'pending' | 'accepted' | 'betting' | 'countdown' | 'playing' | 'finished';
   bet: { amount: number; currency: 'coins' | 'diamonds' };
   startTime?: number;
